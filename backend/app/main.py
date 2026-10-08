@@ -9,8 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.firebase import iniciar_firebase
-from app.routers import deportes, espacios, sedes, usuarios
-
+from app.routers import deportes, espacios, reservas, sedes, usuarios
 
 @asynccontextmanager
 async def ciclo_de_vida(app):
@@ -21,7 +20,7 @@ async def ciclo_de_vida(app):
 app = FastAPI(
     title="API ClubLucasBerazategui",
     description="API REST para la gestión de reservas de espacios deportivos.",
-    version="0.3.0",
+    version="0.4.0",
     lifespan=ciclo_de_vida,
 )
 
@@ -29,6 +28,7 @@ app.include_router(sedes.router)
 app.include_router(deportes.router)
 app.include_router(espacios.router)
 app.include_router(usuarios.router)
+app.include_router(reservas.router)
 
 
 # errores de validacion en castellano

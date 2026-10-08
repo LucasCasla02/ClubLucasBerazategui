@@ -88,3 +88,28 @@ class UsuarioOut(BaseModel):
     dni: str
     fecha_nacimiento: date
     creado_en: datetime
+
+
+
+class ReservaCrear(BaseModel):
+    espacio_id: int
+    fecha: date
+    hora_inicio: time
+    hora_fin: time
+
+
+class ReservaOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    fecha: date
+    hora_inicio: time
+    hora_fin: time
+    # activa / cancelada (lo que esta guardado)
+    estado: str
+    # activa / completada / cancelada (calculado con la hora actual)
+    estado_actual: str
+    monto_total: float
+    creada_en: datetime
+    cancelada_en: datetime | None
+    espacio: EspacioOut
