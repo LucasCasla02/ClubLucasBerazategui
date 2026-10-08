@@ -1,4 +1,4 @@
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, StringConstraints, field_validator
@@ -65,6 +65,19 @@ Dni = Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{7,8}
 
 
 class UsuarioDatos(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "nombre": "Lucas",
+                    "apellido": "Berazategui",
+                    "dni": "40123456",
+                    "fecha_nacimiento": "2000-05-10",
+                }
+            ]
+        }
+    )
+
     nombre: Texto
     apellido: Texto
     dni: Dni
@@ -90,8 +103,21 @@ class UsuarioOut(BaseModel):
     creado_en: datetime
 
 
-
 class ReservaCrear(BaseModel):
+    # el ejemplo usa la fecha de mañana para que se pueda probar directo
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "espacio_id": 1,
+                    "fecha": (date.today() + timedelta(days=1)).isoformat(),
+                    "hora_inicio": "18:00",
+                    "hora_fin": "20:00",
+                }
+            ]
+        }
+    )
+
     espacio_id: int
     fecha: date
     hora_inicio: time
@@ -113,3 +139,8 @@ class ReservaOut(BaseModel):
     creada_en: datetime
     cancelada_en: datetime | None
     espacio: EspacioOut
+
+
+class ErrorValidacion(BaseModel):
+    detail: str
+    campos: list[str]
