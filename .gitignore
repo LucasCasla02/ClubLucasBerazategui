@@ -1,0 +1,38 @@
+# ===== SECRETOS: NUNCA SE SUBEN =====
+.env
+.env.*
+!.env.example
+*service-account*.json
+*serviceAccount*.json
+*firebase-adminsdk*.json
+*.pem
+*.key
+*.keystore
+*.jks
+key.properties
+
+# Configuracion de Firebase de la app (se regenera, ver README de app/)
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+
+# ===== Python (backend) =====
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# ===== Flutter (app) =====
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+.idea/
+local.properties
+
+# ===== Sistema y editor =====
+Thumbs.db
+.DS_Store
+.vscode/
