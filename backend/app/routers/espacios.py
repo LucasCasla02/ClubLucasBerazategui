@@ -1,10 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models import EspacioDeportivo
-from app.schemas import EspacioOut
+from app.reglas import (
+    ErrorDeRegla,
+    ahora_argentina,
+    franjas_del_dia,
+    ocupados_por_espacio,
+    validar_fecha,
+)
+from app.schemas import EspacioOut, HorariosOut
 
 router = APIRouter(prefix="/api/v1/espacios", tags=["Espacios deportivos"])
 
@@ -13,6 +22,13 @@ def _consulta_espacios():
     return select(EspacioDeportivo).options(
         joinedload(EspacioDeportivo.sede), joinedload(EspacioDeportivo.deporte)
     )
+
+
+def _buscar_espacio(db, espacio_id):
+    espacio = db.scalar(_consulta_espacios().where(EspacioDeportivo.id == espacio_id))
+    if espacio is None or not espacio.activo:
+        raise HTTPException(status_code=404, detail="El espacio no existe")
+    return espacio
 
 
 @router.get(
@@ -40,7 +56,36 @@ def listar_espacios(
     responses={404: {"description": "El espacio no existe"}},
 )
 def ver_espacio(espacio_id: int, db: Session = Depends(get_db)):
-    espacio = db.scalar(_consulta_espacios().where(EspacioDeportivo.id == espacio_id))
-    if espacio is None or not espacio.activo:
-        raise HTTPException(status_code=404, detail="El espacio no existe")
-    return espacio
+    return _buscar_espacio(db, espacio_id)
+
+
+@router.get(
+    "/{espacio_id}/horarios",
+    response_model=HorariosOut,
+    summary="Ver los horarios libres y ocupados de un espacio en una fecha",
+    responses={
+        400: {"description": "La fecha ya pasó"},
+        404: {"description": "El espacio no existe"},
+    },
+)
+def ver_horarios(
+    espacio_id: int,
+    fecha: date,
+    duracion: int = Query(1, ge=1, le=2, description="Duración en horas (1 o 2)"),
+    db: Session = Depends(get_db),
+):
+    espacio = _buscar_espacio(db, espacio_id)
+    ahora = ahora_argentina()
+    try:
+        validar_fecha(fecha, ahora)
+    except ErrorDeRegla as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    ocupados = ocupados_por_espacio(db, [espacio.id], fecha)[espacio.id]
+    return HorariosOut(
+        espacio_id=espacio.id,
+        fecha=fecha,
+        duracion=duracion,
+        precio_por_hora=espacio.precio_por_hora,
+        franjas=franjas_del_dia(espacio, fecha, duracion, ocupados, ahora),
+    )

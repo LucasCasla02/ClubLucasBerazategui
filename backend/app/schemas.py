@@ -1,4 +1,4 @@
-from datetime import time
+from datetime import date, time
 
 from pydantic import BaseModel, ConfigDict
 
@@ -39,3 +39,21 @@ class EspacioOut(BaseModel):
     hora_cierre: time
     deporte: DeporteOut
     sede: SedeResumen
+
+
+class EspacioDisponibleOut(EspacioOut):
+    monto_total: float
+
+
+class FranjaHoraria(BaseModel):
+    hora_inicio: time
+    hora_fin: time
+    disponible: bool
+
+
+class HorariosOut(BaseModel):
+    espacio_id: int
+    fecha: date
+    duracion: int
+    precio_por_hora: float
+    franjas: list[FranjaHoraria]
