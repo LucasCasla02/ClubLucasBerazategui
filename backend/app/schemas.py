@@ -1,6 +1,7 @@
-from datetime import date, time
+from datetime import date, datetime, time
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, StringConstraints, field_validator
 
 
 class DeporteOut(BaseModel):
@@ -57,3 +58,33 @@ class HorariosOut(BaseModel):
     duracion: int
     precio_por_hora: float
     franjas: list[FranjaHoraria]
+
+
+Texto = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+Dni = Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{7,8}$")]
+
+
+class UsuarioDatos(BaseModel):
+    nombre: Texto
+    apellido: Texto
+    dni: Dni
+    fecha_nacimiento: date
+
+    @field_validator("fecha_nacimiento")
+    @classmethod
+    def fecha_valida(cls, valor):
+        if valor >= date.today() or valor.year < 1900:
+            raise ValueError("fecha de nacimiento inválida")
+        return valor
+
+
+class UsuarioOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: str
+    nombre: str
+    apellido: str
+    dni: str
+    fecha_nacimiento: date
+    creado_en: datetime
