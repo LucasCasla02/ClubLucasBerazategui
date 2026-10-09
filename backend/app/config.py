@@ -1,6 +1,6 @@
 """Configuración de la API.
 
-Lee los valores del archivo .env (en tu compu) o de las variables de
+Lee los valores del archivo .env o de las variables de
 entorno (en Render). Así las contraseñas nunca quedan escritas en el código.
 """
 from pydantic_settings import BaseSettings, SettingsConfigDict

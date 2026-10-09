@@ -1,4 +1,4 @@
-# ===== SECRETOS: NUNCA SE SUBEN =====
+# ===== SECRETOS =====
 .env
 .env.*
 !.env.example

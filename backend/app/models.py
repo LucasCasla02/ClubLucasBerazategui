@@ -1,4 +1,4 @@
-"""Modelo de datos: cada clase es una tabla de la base de datos.
+"""Modelo de datos
 
 Entidades: Usuario, Sede, Deporte, EspacioDeportivo y Reserva.
 """
