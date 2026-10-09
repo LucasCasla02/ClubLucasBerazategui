@@ -104,6 +104,7 @@ Crea el usuario en Firebase si no existe (o inicia sesión si ya existe) y muest
 - Dentro del horario de la sede y de la cancha.
 - Solo horarios futuros, con la hora de Argentina (`America/Argentina/Buenos_Aires`).
 - Sin superposición con otra reserva activa de la misma cancha. Al reservar se bloquea la fila de la cancha para que dos pedidos simultáneos no puedan reservar el mismo horario.
+- Un mismo usuario no puede tener dos reservas activas que se superpongan, aunque sean en canchas distintas.
 - Al cancelar, la reserva queda en el historial como cancelada y el horario vuelve a estar libre. No se pueden cancelar reservas que ya empezaron.
 
 ## Códigos de error
@@ -113,7 +114,7 @@ Crea el usuario en Firebase si no existe (o inicia sesión si ya existe) y muest
 | 400 | Fecha u horario inválido según las reglas |
 | 401 | Falta el token o no es válido |
 | 404 | No existe (o no es del usuario) |
-| 409 | Conflicto: usuario ya registrado, horario ocupado, reserva ya cancelada |
+| 409 | Conflicto: usuario ya registrado, horario ocupado, otra reserva propia a la misma hora, reserva ya cancelada |
 | 422 | Datos con formato inválido |
 | 503 | Sin conexión con la base de datos |
 

@@ -67,7 +67,7 @@ def _buscar_reserva_propia(db, reserva_id, usuario):
         400: {"description": "Fecha u horario inválido"},
         401: {"description": "Sin sesión"},
         404: {"description": "El espacio no existe"},
-        409: {"description": "El horario ya está ocupado"},
+        409: {"description": "El horario ya está ocupado o ya tenés otra reserva a esa hora"},
     },
 )
 def crear_reserva(
@@ -100,6 +100,21 @@ def crear_reserva(
         raise HTTPException(
             status_code=409,
             detail="El horario seleccionado ya no está disponible. Elegí otro horario.",
+        )
+
+    # el usuario tampoco puede tener otra reserva a la misma hora (en ninguna cancha).
+    # se bloquea su fila para que dos pedidos suyos al mismo tiempo no pasen los dos
+    db.execute(select(Usuario.id).where(Usuario.id == usuario.id).with_for_update())
+    mias = db.execute(
+        select(Reserva.hora_inicio, Reserva.hora_fin).where(
+            Reserva.usuario_id == usuario.id,
+            Reserva.fecha == datos.fecha,
+            Reserva.estado == "activa",
+        )
+    ).all()
+    if se_superpone(datos.hora_inicio, datos.hora_fin, mias):
+        raise HTTPException(
+            status_code=409, detail="Ya tenés otra reserva en ese horario."
         )
 
     horas = datos.hora_fin.hour - datos.hora_inicio.hour
