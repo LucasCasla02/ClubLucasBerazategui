@@ -100,7 +100,7 @@ Crea el usuario en Firebase si no existe (o inicia sesión si ya existe) y muest
 
 ## Reglas de las reservas
 
-- Horas completas (18:00, no 18:30) y duración mínima de 1 hora.
+- Horas completas (18:00, no 18:30), con una duración de 1 o 2 horas.
 - Dentro del horario de la sede y de la cancha.
 - Solo horarios futuros, con la hora de Argentina (`America/Argentina/Buenos_Aires`).
 - Sin superposición con otra reserva activa de la misma cancha. Al reservar se bloquea la fila de la cancha para que dos pedidos simultáneos no puedan reservar el mismo horario.

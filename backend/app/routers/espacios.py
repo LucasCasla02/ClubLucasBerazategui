@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from app.models import EspacioDeportivo
 from app.reglas import (
+    DURACION_MAXIMA_HORAS,
     ErrorDeRegla,
     ahora_argentina,
     franjas_del_dia,
@@ -71,7 +72,7 @@ def ver_espacio(espacio_id: int, db: Session = Depends(get_db)):
 def ver_horarios(
     espacio_id: int,
     fecha: date,
-    duracion: int = Query(1, ge=1, le=2, description="Duración en horas (1 o 2)"),
+    duracion: int = Query(1, ge=1, le=DURACION_MAXIMA_HORAS, description="Duración en horas"),
     db: Session = Depends(get_db),
 ):
     espacio = _buscar_espacio(db, espacio_id)

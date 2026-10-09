@@ -1,11 +1,15 @@
 # reglas de horarios que se usan en disponibilidad y en reservas
-from datetime import date, datetime, time
+from datetime import datetime, time
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 
 from app.config import settings
 from app.models import Reserva
+
+
+# duracion maxima de una reserva, igual que en el figma (1 o 2 horas)
+DURACION_MAXIMA_HORAS = 2
 
 
 class ErrorDeRegla(Exception):
@@ -58,6 +62,8 @@ def validar_rango(hora_inicio, hora_fin):
         raise ErrorDeRegla("Los horarios tienen que ser en punto (por ejemplo 18:00)")
     if hora_fin <= hora_inicio:
         raise ErrorDeRegla("La hora de fin tiene que ser posterior a la de inicio")
+    if hora_fin.hour - hora_inicio.hour > DURACION_MAXIMA_HORAS:
+        raise ErrorDeRegla(f"La reserva puede durar como máximo {DURACION_MAXIMA_HORAS} horas")
 
 
 def validar_dentro_del_horario(espacio, hora_inicio, hora_fin):
