@@ -141,3 +141,11 @@ backend/
 ## Despliegue en Render
 
 Pendiente.
+
+## Posibles mejoras a futuro
+
+- Limitar la cantidad de pedidos por minuto (rate limiting) en el registro y en las reservas.
+- Pruebas automáticas con pytest dentro del repo.
+- Migraciones de base de datos con Alembic en lugar de create_all.
+- Documentar en Swagger las respuestas de error 400, 401, 404 y 409.
+- Agregar la imagen del DER al repo.
