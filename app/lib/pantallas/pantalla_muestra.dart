@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../servicios/api.dart';
 import '../tema.dart';
 import '../widgets/boton_principal.dart';
 import '../widgets/campo_texto.dart';
@@ -17,6 +18,8 @@ class _PantallaMuestraState extends State<PantallaMuestra> {
   final _email = TextEditingController();
   final _contrasena = TextEditingController();
   bool _cargando = false;
+  bool _cargandoSedes = false;
+  List<String> _sedes = [];
 
   @override
   void dispose() {
@@ -31,6 +34,21 @@ class _PantallaMuestraState extends State<PantallaMuestra> {
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
     setState(() => _cargando = false);
+  }
+
+  // trae las sedes de la api y muestra los nombres
+  Future<void> _probarApi() async {
+    setState(() => _cargandoSedes = true);
+    try {
+      final datos = await Api.get('/sedes') as List<dynamic>;
+      if (!mounted) return;
+      setState(() => _sedes = datos.map((sede) => sede['nombre'] as String).toList());
+    } on ErrorApi catch (e) {
+      if (!mounted) return;
+      await mostrarError(context, titulo: e.titulo, mensaje: e.mensaje);
+    } finally {
+      if (mounted) setState(() => _cargandoSedes = false);
+    }
   }
 
   @override
@@ -80,6 +98,10 @@ class _PantallaMuestraState extends State<PantallaMuestra> {
               value: oscuro,
               onChanged: cambiarModoTema,
             ),
+            const SizedBox(height: 24),
+            BotonPrincipal(texto: 'Probar API', alTocar: _probarApi, cargando: _cargandoSedes),
+            const SizedBox(height: 12),
+            for (final nombre in _sedes) Text('• $nombre'),
           ],
         ),
       ),
