@@ -60,6 +60,7 @@ ThemeData _armarTema(Brightness brillo) {
   return base.copyWith(
     textTheme: _conInter(base.textTheme).apply(bodyColor: texto, displayColor: texto),
     textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: acento)),
+    dividerTheme: DividerThemeData(color: oscuro ? Colors.white12 : Colors.black12),
   );
 }
 
