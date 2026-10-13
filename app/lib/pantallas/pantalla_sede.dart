@@ -13,7 +13,7 @@ import '../widgets/estado_error.dart';
 import '../widgets/fondo_foto.dart';
 import '../widgets/modal_error.dart';
 import '../widgets/tarjeta_cancha.dart';
-
+import 'pantalla_reservar.dart';
 // detalle de una sede: filtros de deporte y de tipo, y sus canchas
 class PantallaSede extends StatefulWidget {
   final Sede sede;
@@ -77,10 +77,13 @@ class _PantallaSedeState extends State<PantallaSede> {
     });
   }
 
-  // se conecta en el paso 3.10
-  void _reservar(Espacio espacio) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('La reserva de ${espacio.variante} se arma en el paso 3.10')),
+   void _reservar(Espacio espacio) {
+    // canchas del mismo tipo, para poder cambiar de cancha en la reserva
+    final canchas = _delDeporte.where((e) => e.variante == espacio.variante).toList();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PantallaReservar(sede: widget.sede, canchas: canchas, inicial: espacio),
+      ),
     );
   }
 
