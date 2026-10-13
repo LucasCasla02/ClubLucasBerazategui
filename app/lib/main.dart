@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'firebase_options.dart';
-import 'pantallas/pantalla_inicio.dart';
 import 'pantallas/pantalla_login.dart';
+import 'pantallas/pantalla_principal.dart';
 import 'servicios/auth.dart';
 import 'tema.dart';
 
@@ -45,7 +45,7 @@ class ClubApp extends StatelessWidget {
   }
 }
 
-// muestra el login o el inicio segun haya sesion iniciada
+// muestra el login o la app segun haya sesion iniciada
 class _Puerta extends StatelessWidget {
   const _Puerta();
 
@@ -63,8 +63,8 @@ class _Puerta extends StatelessWidget {
             final usuario = sesion.data;
             // mientras se crea la cuenta se sigue mostrando el login
             if (usuario == null || registrando) return const PantallaLogin();
-            // la key hace que si cambia el usuario se vuelva a cargar el perfil
-            return PantallaInicio(key: ValueKey(usuario.uid));
+            // la key hace que si cambia el usuario se vuelva a cargar todo
+            return PantallaPrincipal(key: ValueKey(usuario.uid));
           },
         );
       },

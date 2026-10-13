@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../servicios/api.dart';
-import '../servicios/auth.dart';
 import '../tema.dart';
-import '../widgets/boton_principal.dart';
+import '../widgets/modal_error.dart';
 
-// pantalla provisoria, se reemplaza por el inicio real en el paso 3.7
+// provisoria, el inicio real se arma en el paso 3.8
 class PantallaInicio extends StatefulWidget {
   const PantallaInicio({super.key});
 
@@ -31,7 +30,9 @@ class _PantallaInicioState extends State<PantallaInicio> {
       setState(() => _nombre = yo['nombre'] as String);
     } on ErrorApi catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.mensaje);
+      final mensaje = await manejarError(context, e);
+      if (!mounted) return;
+      setState(() => _error = mensaje ?? 'No se pudo cargar tu perfil.');
     }
   }
 
@@ -54,8 +55,6 @@ class _PantallaInicioState extends State<PantallaInicio> {
                 const CircularProgressIndicator()
               else
                 Text(_nombre!.toUpperCase(), style: estiloTitulo(40, tema.colorScheme.secondary)),
-              const Spacer(),
-              BotonPrincipal(texto: 'Cerrar sesión', alTocar: Auth.cerrarSesion),
             ],
           ),
         ),
