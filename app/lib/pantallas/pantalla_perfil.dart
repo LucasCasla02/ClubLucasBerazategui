@@ -198,57 +198,9 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
     }
   }
 
-  // modal de la zona de peligro, como en el figma
+  // modal de la zona de peligro, devuelve true si la contraseña fue confirmada
   Future<bool?> _confirmarEliminacion() {
-    return showDialog<bool>(
-      context: context,
-      builder: (contexto) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.warning_amber_rounded, color: Colores.rojo, size: 18),
-            SizedBox(width: 8),
-            Text(
-              'ZONA DE PELIGRO',
-              style: TextStyle(color: Colores.rojo, fontSize: 12, letterSpacing: 2, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-        content: const Text(
-          '¿Estás seguro? Esta acción elimina todos tus datos y tus reservas permanentemente.',
-        ),
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.of(contexto).pop(false),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colores.gris,
-                    minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('Cancelar'),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => Navigator.of(contexto).pop(true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colores.rojo,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('Eliminar', style: TextStyle(fontWeight: FontWeight.w700)),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+    return showDialog<bool>(context: context, builder: (_) => const _ModalEliminarCuenta());
   }
 
   @override
@@ -547,6 +499,130 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
         border: Border.all(color: oscuro ? Colors.white10 : Colors.black12),
       ),
       child: child,
+    );
+  }
+}
+
+// modal de la zona de peligro: pide la contraseña antes de eliminar la cuenta.
+// si la contraseña esta mal el modal no se cierra y muestra el error
+class _ModalEliminarCuenta extends StatefulWidget {
+  const _ModalEliminarCuenta();
+
+  @override
+  State<_ModalEliminarCuenta> createState() => _ModalEliminarCuentaState();
+}
+
+class _ModalEliminarCuentaState extends State<_ModalEliminarCuenta> {
+  final _contrasena = TextEditingController();
+  bool _verificando = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    // para habilitar el boton eliminar recien cuando se escribe algo
+    _contrasena.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _contrasena.dispose();
+    super.dispose();
+  }
+
+  Future<void> _eliminar() async {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _verificando = true;
+      _error = null;
+    });
+    try {
+      await Auth.confirmarContrasena(_contrasena.text);
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } on ErrorApi catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _verificando = false;
+        _error = e.mensaje;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final puedeEliminar = _contrasena.text.isNotEmpty && !_verificando;
+
+    return AlertDialog(
+      // para que no se tape con el teclado
+      scrollable: true,
+      title: const Row(
+        children: [
+          Icon(Icons.warning_amber_rounded, color: Colores.rojo, size: 18),
+          SizedBox(width: 8),
+          Text(
+            'ZONA DE PELIGRO',
+            style: TextStyle(color: Colores.rojo, fontSize: 12, letterSpacing: 2, fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('¿Estás seguro? Esta acción elimina todos tus datos y tus reservas permanentemente.'),
+          const SizedBox(height: 16),
+          CampoTexto(
+            etiqueta: 'Ingresá tu contraseña',
+            controlador: _contrasena,
+            esContrasena: true,
+            habilitado: !_verificando,
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: 8),
+            Text(_error!, style: const TextStyle(color: Colores.rojo, fontSize: 13)),
+          ],
+        ],
+      ),
+      actions: [
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: _verificando ? null : () => Navigator.of(context).pop(false),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colores.gris,
+                  minimumSize: const Size.fromHeight(48),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Cancelar'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: puedeEliminar ? _eliminar : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colores.rojo,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colores.rojo.withValues(alpha: 0.4),
+                  disabledForegroundColor: Colors.white70,
+                  elevation: 0,
+                  minimumSize: const Size.fromHeight(48),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: _verificando
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Eliminar', style: TextStyle(fontWeight: FontWeight.w700)),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

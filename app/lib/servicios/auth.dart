@@ -59,24 +59,28 @@ class Auth {
     }
   }
 
-  // firebase pide confirmar la contraseña actual antes de cambiarla
-  static Future<void> cambiarContrasena({required String actual, required String nueva}) async {
+  // vuelve a pedirle a firebase la contraseña del usuario logueado.
+  // se usa antes de cambiar la contraseña y antes de eliminar la cuenta
+  static Future<void> confirmarContrasena(String contrasena) async {
     final usuario = _firebase.currentUser;
     final email = usuario?.email;
     if (usuario == null || email == null) throw errorSesionVencida;
 
     try {
-      final credencial = EmailAuthProvider.credential(email: email, password: actual);
+      final credencial = EmailAuthProvider.credential(email: email, password: contrasena);
       await usuario.reauthenticateWithCredential(credencial);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-credential' || e.code == 'wrong-password') {
         throw const ErrorApi('Contraseña incorrecta', 'La contraseña actual no es correcta.');
       }
-      throw _traducir(e, 'No se pudo cambiar la contraseña. Intentá de nuevo.');
+      throw _traducir(e, 'No se pudo verificar la contraseña. Intentá de nuevo.');
     }
+  }
 
+  static Future<void> cambiarContrasena({required String actual, required String nueva}) async {
+    await confirmarContrasena(actual);
     try {
-      await usuario.updatePassword(nueva);
+      await _firebase.currentUser!.updatePassword(nueva);
     } on FirebaseAuthException catch (e) {
       throw _traducir(e, 'No se pudo cambiar la contraseña. Intentá de nuevo.');
     }
