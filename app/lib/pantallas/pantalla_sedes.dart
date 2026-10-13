@@ -8,6 +8,7 @@ import '../widgets/estado_error.dart';
 import '../widgets/modal_error.dart';
 import '../widgets/tarjeta_sede.dart';
 import '../widgets/titulo_doble.dart';
+import 'pantalla_sede.dart';
 
 class PantallaSedes extends StatefulWidget {
   const PantallaSedes({super.key});
@@ -48,11 +49,8 @@ class _PantallaSedesState extends State<PantallaSedes> {
     _cargar();
   }
 
-  // se conecta en la parte b
   void _abrir(Sede sede) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('El detalle de ${sede.nombre} se arma en la parte B')),
-    );
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => PantallaSede(sede: sede)));
   }
 
   @override
