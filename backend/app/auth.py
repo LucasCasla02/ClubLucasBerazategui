@@ -19,12 +19,12 @@ def token_actual(credenciales: HTTPAuthorizationCredentials | None = Depends(esq
     if credenciales is None:
         raise _no_autorizado("Falta el token de sesión")
     try:
-        return auth.verify_id_token(credenciales.credentials)
+        # tolerancia por si el reloj de la pc esta unos segundos atrasado
+        return auth.verify_id_token(credenciales.credentials, clock_skew_seconds=10)
     except auth.CertificateFetchError:
         raise HTTPException(status_code=503, detail="No se pudo validar la sesión, probá más tarde")
     except (auth.InvalidIdTokenError, ValueError):
         raise _no_autorizado("La sesión no es válida o venció")
-
 
 def usuario_actual(token: dict = Depends(token_actual), db: Session = Depends(get_db)):
     usuario = db.scalar(select(Usuario).where(Usuario.firebase_uid == token["uid"]))
