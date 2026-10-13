@@ -47,7 +47,7 @@ class Auth {
   }
 
   static Future<void> cerrarSesion() => _firebase.signOut();
-  
+
   // manda el mail de firebase para crear una contraseña nueva
   static Future<void> recuperarContrasena(String email) async {
     try {
@@ -58,7 +58,30 @@ class Auth {
       throw _traducir(e, 'No se pudo enviar el enlace. Intentá de nuevo.');
     }
   }
-  
+
+  // firebase pide confirmar la contraseña actual antes de cambiarla
+  static Future<void> cambiarContrasena({required String actual, required String nueva}) async {
+    final usuario = _firebase.currentUser;
+    final email = usuario?.email;
+    if (usuario == null || email == null) throw errorSesionVencida;
+
+    try {
+      final credencial = EmailAuthProvider.credential(email: email, password: actual);
+      await usuario.reauthenticateWithCredential(credencial);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-credential' || e.code == 'wrong-password') {
+        throw const ErrorApi('Contraseña incorrecta', 'La contraseña actual no es correcta.');
+      }
+      throw _traducir(e, 'No se pudo cambiar la contraseña. Intentá de nuevo.');
+    }
+
+    try {
+      await usuario.updatePassword(nueva);
+    } on FirebaseAuthException catch (e) {
+      throw _traducir(e, 'No se pudo cambiar la contraseña. Intentá de nuevo.');
+    }
+  }
+
   static Future<void> _deshacerCuenta() async {
     try {
       await _firebase.currentUser?.delete();
