@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'firebase_options.dart';
 import 'pantallas/pantalla_inicio.dart';
@@ -30,6 +31,14 @@ class ClubApp extends StatelessWidget {
         theme: temaClaro,
         darkTheme: temaOscuro,
         themeMode: modo,
+        // toda la app en español, incluido el calendario
+        locale: const Locale('es'),
+        supportedLocales: const [Locale('es')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         home: const _Puerta(),
       ),
     );
@@ -48,10 +57,16 @@ class _Puerta extends StatelessWidget {
         if (sesion.connectionState == ConnectionState.waiting) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
-        final usuario = sesion.data;
-        if (usuario == null) return const PantallaLogin();
-        // la key hace que si cambia el usuario se vuelva a cargar el perfil
-        return PantallaInicio(key: ValueKey(usuario.uid));
+        return ValueListenableBuilder<bool>(
+          valueListenable: Auth.registrando,
+          builder: (context, registrando, _) {
+            final usuario = sesion.data;
+            // mientras se crea la cuenta se sigue mostrando el login
+            if (usuario == null || registrando) return const PantallaLogin();
+            // la key hace que si cambia el usuario se vuelva a cargar el perfil
+            return PantallaInicio(key: ValueKey(usuario.uid));
+          },
+        );
       },
     );
   }

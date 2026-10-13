@@ -11,6 +11,10 @@ class CampoTexto extends StatefulWidget {
   final bool habilitado;
   final TextInputType teclado;
   final String? Function(String?)? validador;
+  // para campos que se tocan en vez de escribirse, como la fecha
+  final bool soloLectura;
+  final VoidCallback? alTocar;
+  final IconData? icono;
 
   const CampoTexto({
     super.key,
@@ -21,6 +25,9 @@ class CampoTexto extends StatefulWidget {
     this.habilitado = true,
     this.teclado = TextInputType.text,
     this.validador,
+    this.soloLectura = false,
+    this.alTocar,
+    this.icono,
   });
 
   @override
@@ -42,6 +49,16 @@ class _CampoTextoState extends State<CampoTexto> {
           borderSide: BorderSide(color: color, width: ancho),
         );
 
+    Widget? iconoDerecha;
+    if (widget.esContrasena) {
+      iconoDerecha = IconButton(
+        icon: Icon(_oculto ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+        onPressed: () => setState(() => _oculto = !_oculto),
+      );
+    } else if (widget.icono != null) {
+      iconoDerecha = Icon(widget.icono);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -56,6 +73,8 @@ class _CampoTextoState extends State<CampoTexto> {
           enabled: widget.habilitado,
           keyboardType: widget.teclado,
           validator: widget.validador,
+          readOnly: widget.soloLectura,
+          onTap: widget.alTocar,
           decoration: InputDecoration(
             hintText: widget.pista,
             hintStyle: const TextStyle(color: Colores.gris),
@@ -67,12 +86,7 @@ class _CampoTextoState extends State<CampoTexto> {
             focusedBorder: linea(tema.colorScheme.secondary, 1.5),
             errorBorder: linea(Colores.rojo),
             focusedErrorBorder: linea(Colores.rojo, 1.5),
-            suffixIcon: widget.esContrasena
-                ? IconButton(
-                    icon: Icon(_oculto ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-                    onPressed: () => setState(() => _oculto = !_oculto),
-                  )
-                : null,
+            suffixIcon: iconoDerecha,
           ),
         ),
       ],

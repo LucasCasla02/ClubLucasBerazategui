@@ -7,6 +7,7 @@ import '../widgets/aviso_error.dart';
 import '../widgets/boton_principal.dart';
 import '../widgets/campo_texto.dart';
 import '../widgets/modal_error.dart';
+import 'pantalla_registro.dart';
 
 class PantallaLogin extends StatefulWidget {
   const PantallaLogin({super.key});
@@ -114,8 +115,12 @@ class _PantallaLoginState extends State<PantallaLogin> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text('¿No tenés cuenta?'),
-                // se conecta en la parte b
-                TextButton(onPressed: () {}, child: const Text('COMENZAR →')),
+                TextButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const PantallaRegistro()),
+                  ),
+                  child: const Text('COMENZAR →'),
+                ),
               ],
             ),
           ],
