@@ -47,7 +47,18 @@ class Auth {
   }
 
   static Future<void> cerrarSesion() => _firebase.signOut();
-
+  
+  // manda el mail de firebase para crear una contraseña nueva
+  static Future<void> recuperarContrasena(String email) async {
+    try {
+      // el mail llega en español
+      await _firebase.setLanguageCode('es');
+      await _firebase.sendPasswordResetEmail(email: email.trim());
+    } on FirebaseAuthException catch (e) {
+      throw _traducir(e, 'No se pudo enviar el enlace. Intentá de nuevo.');
+    }
+  }
+  
   static Future<void> _deshacerCuenta() async {
     try {
       await _firebase.currentUser?.delete();

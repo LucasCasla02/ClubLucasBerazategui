@@ -8,6 +8,7 @@ import '../widgets/boton_principal.dart';
 import '../widgets/campo_texto.dart';
 import '../widgets/modal_error.dart';
 import 'pantalla_registro.dart';
+import 'pantalla_recuperar.dart';
 
 class PantallaLogin extends StatefulWidget {
   const PantallaLogin({super.key});
@@ -103,8 +104,12 @@ class _PantallaLoginState extends State<PantallaLogin> {
             ),
             Align(
               alignment: Alignment.centerRight,
-              // se conecta en la parte c
-              child: TextButton(onPressed: () {}, child: const Text('¿Olvidaste tu contraseña?')),
+              child: TextButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => PantallaRecuperar(emailInicial: _email.text.trim())),
+                ),
+                child: const Text('¿Olvidaste tu contraseña?'),
+              ),
             ),
             const SizedBox(height: 8),
             BotonPrincipal(texto: 'Iniciar sesión', alTocar: _ingresar, cargando: _cargando),
