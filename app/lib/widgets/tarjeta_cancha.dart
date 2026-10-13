@@ -33,7 +33,7 @@ class TarjetaCancha extends StatelessWidget {
           SizedBox(
             height: 130,
             child: FondoFoto(
-              foto: fotoDeporte(espacio.deporte),
+              foto: fotoCancha(espacio.deporte, espacio.variante),
               colorRespaldo: estilo.color,
               child: Stack(
                 children: [

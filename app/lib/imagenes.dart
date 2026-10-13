@@ -31,3 +31,24 @@ String? fotoDeporte(String deporte) {
       return null;
   }
 }
+
+// primero busca una foto del tipo de cancha, si no hay usa la del deporte
+String? fotoCancha(String deporte, String variante) {
+  switch (variante) {
+    case 'Fútbol 7':
+    case 'Fútbol 8':
+      return 'assets/imagenes/canchas/futbol_7.jpg';
+    case 'Fútbol 11':
+      return 'assets/imagenes/canchas/futbol_11.jpg';
+    case 'Cemento':
+      return 'assets/imagenes/canchas/tenis_cemento.jpg';
+    case 'Sintético':
+      return 'assets/imagenes/canchas/tenis_sintetico.jpg';
+    case 'Vóley Playa':
+      return 'assets/imagenes/canchas/voley_playa.jpg';
+    case '9 Hoyos':
+      return 'assets/imagenes/canchas/golf_9hoyos.jpg';
+    default:
+      return fotoDeporte(deporte);
+  }
+}
