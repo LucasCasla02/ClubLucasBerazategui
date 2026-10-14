@@ -85,14 +85,14 @@ class _PantallaReservasState extends State<PantallaReservas> {
     } on ErrorApi catch (e) {
       if (!mounted) return;
       final mensaje = await manejarError(context, e);
-      if (!mounted) return;
-      if (mensaje != null) {
-        await mostrarError(context, titulo: 'No se pudo cancelar', mensaje: mensaje);
-      }
+      // sin conexion o sesion vencida: el modal ya se mostro, no se recarga
+      // para no mostrar un segundo modal igual
+      if (!mounted || mensaje == null) return;
+      await mostrarError(context, titulo: 'No se pudo cancelar', mensaje: mensaje);
     } finally {
       if (mounted) setState(() => _cancelandoId = null);
     }
-    // haya salido bien o mal, se vuelve a pedir la lista
+    // se vuelve a pedir la lista (si salio bien, o si la api dijo que no se podia)
     if (mounted) await _cargar();
   }
 

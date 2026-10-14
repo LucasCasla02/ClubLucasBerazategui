@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../modelos/sede.dart';
+import '../navegacion.dart';
 import '../servicios/api.dart';
 import '../servicios/catalogo.dart';
 import '../tema.dart';
@@ -25,7 +26,21 @@ class _PantallaSedesState extends State<PantallaSedes> {
   @override
   void initState() {
     super.initState();
-    _cargar();
+    // carga recien cuando se entra a la pestaña, asi al iniciar sesion
+    // sin conexion no se juntan los modales de inicio y sedes
+    pestanaActual.addListener(_alCambiarPestana);
+    if (pestanaActual.value == 1) _cargar();
+  }
+
+  @override
+  void dispose() {
+    pestanaActual.removeListener(_alCambiarPestana);
+    super.dispose();
+  }
+
+  // las sedes casi no cambian: solo se piden si todavia no estan
+  void _alCambiarPestana() {
+    if (pestanaActual.value == 1 && _sedes == null) _reintentar();
   }
 
   Future<void> _cargar() async {
@@ -64,6 +79,8 @@ class _PantallaSedesState extends State<PantallaSedes> {
         child: RefreshIndicator(
           onRefresh: _cargar,
           child: ListView(
+            // para que se pueda deslizar aunque se vea solo el error
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(24),
             children: [
               const TituloDoble('TODAS LAS', 'SEDES'),

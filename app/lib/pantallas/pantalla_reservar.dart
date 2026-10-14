@@ -66,7 +66,8 @@ class _PantallaReservarState extends State<PantallaReservar> {
         _error = null;
       });
     } on ErrorApi catch (e) {
-      if (!mounted) return;
+      // si mientras tanto se cambio algo, este error ya no importa
+      if (!mounted || cancha != _cancha || fecha != _fecha || duracion != _duracion) return;
       final mensaje = await manejarError(context, e);
       if (!mounted) return;
       setState(() => _error = mensaje ?? 'No se pudieron cargar los horarios.');
@@ -102,11 +103,11 @@ class _PantallaReservarState extends State<PantallaReservar> {
     } on ErrorApi catch (e) {
       if (!mounted) return;
       final mensaje = await manejarError(context, e);
+      // sin conexion o sesion vencida: el modal ya se mostro, no se recarga
+      // para no mostrar un segundo modal igual
+      if (!mounted || mensaje == null) return;
+      await mostrarError(context, titulo: 'No se pudo reservar', mensaje: mensaje);
       if (!mounted) return;
-      if (mensaje != null) {
-        await mostrarError(context, titulo: 'No se pudo reservar', mensaje: mensaje);
-        if (!mounted) return;
-      }
       // el horario pudo haberse ocupado, se vuelven a pedir
       _cambiar(() {});
     } finally {
