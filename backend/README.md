@@ -140,7 +140,62 @@ backend/
 
 ## Despliegue en Render
 
-Pendiente.
+La API está publicada en **https://clublucasberazategui.onrender.com**
+
+- Swagger: https://clublucasberazategui.onrender.com/docs
+- Estado: https://clublucasberazategui.onrender.com/api/v1/salud
+
+Se usan dos servicios de Render, los dos en el plan gratis y en la misma región.
+
+### 1. Base de datos
+
+En Render: **New → Postgres**.
+
+| Campo | Valor |
+|---|---|
+| Name | `club-db` |
+| Database | `club_db` |
+| User | `club` |
+| Region | Virginia (US East) |
+| Plan | Free |
+
+Cuando quede **Available**, copiar la **Internal Database URL** (en *Connections*). Tiene la contraseña de la base: no se comparte ni se sube al repositorio.
+
+### 2. API (Web Service)
+
+En Render: **New → Web Service**, conectado al repositorio de GitHub.
+
+| Campo | Valor |
+|---|---|
+| Name | `ClubLucasBerazategui` |
+| Language | Python 3 |
+| Branch | `main` |
+| Region | Virginia (US East), la misma que la base |
+| Root Directory | `backend` |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `python cargar_datos.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| Health Check Path | `/api/v1/salud` |
+| Plan | Free |
+
+El Start Command primero ejecuta `cargar_datos.py` (crea las tablas y carga sedes y canchas si faltan, sin duplicar ni borrar nada) y después levanta la API. Así una base nueva queda lista sola.
+
+### 3. Variables de entorno
+
+En el Web Service, en **Environment**:
+
+| Variable | Valor |
+|---|---|
+| `PYTHON_VERSION` | `3.13.7` |
+| `DATABASE_URL` | la Internal Database URL del paso 1 |
+| `FIREBASE_CREDENCIALES_JSON` | el contenido completo del `.json` de la cuenta de servicio de Firebase |
+
+En Render no se usa el `.env`: estas variables lo reemplazan. `database.py` adapta sola la URL que da Render al formato que usa SQLAlchemy.
+
+### Tener en cuenta
+
+- Cada `git push` a `main` vuelve a desplegar la API automáticamente.
+- El plan gratis **se duerme** después de unos 15 minutos sin uso. El primer pedido después de eso tarda alrededor de un minuto mientras se despierta.
+- La base gratis **vence a los 30 días**. Para renovarla: crear una base nueva, cambiar `DATABASE_URL` en el Web Service y redesplegar. Las tablas y los datos de sedes y canchas se cargan solos al arrancar (los usuarios y reservas no).
 
 ## Posibles mejoras a futuro
 

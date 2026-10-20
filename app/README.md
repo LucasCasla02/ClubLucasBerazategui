@@ -69,8 +69,10 @@ Por defecto la app se conecta a la API en `http://10.0.2.2:8000/api/v1`. `10.0.2
 Para usar la API publicada en Render:
 
 ```
-flutter run --dart-define=URL_API=https://<tu-servicio>.onrender.com/api/v1
+flutter run --dart-define=URL_API=https://clublucasberazategui.onrender.com/api/v1
 ```
+
+> **Render gratis se duerme** después de unos 15 minutos sin uso y el primer pedido tarda alrededor de un minuto. Si la app muestra "El servidor no responde", abrir https://clublucasberazategui.onrender.com/api/v1/salud en el navegador, esperar a que cargue y reintentar.
 
 > **Zona horaria:** el emulador tiene que estar en la hora de Argentina (Ajustes → Sistema → Fecha y hora → Buenos Aires), si no, los horarios disponibles no coinciden con los del servidor.
 
@@ -79,7 +81,7 @@ flutter run --dart-define=URL_API=https://<tu-servicio>.onrender.com/api/v1
 Para instalar la app en un celular Android real:
 
 ```
-flutter build apk --release --dart-define=URL_API=https://<tu-servicio>.onrender.com/api/v1
+flutter build apk --release --dart-define=URL_API=https://clublucasberazategui.onrender.com/api/v1
 ```
 
 El instalable queda en `build/app/outputs/flutter-apk/app-release.apk`. El celular necesita llegar a la API por internet, por eso se usa la URL de Render (la `10.0.2.2` solo existe dentro del emulador).
