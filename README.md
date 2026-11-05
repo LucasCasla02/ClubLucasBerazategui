@@ -3,7 +3,7 @@
 Aplicación móvil para la gestión de espacios deportivos.
 Trabajo Práctico de Electiva General, Universidad de Morón.
 
-Los usuarios pueden registrarse, consultar las sedes y sus canchas, ver la disponibilidad de horarios, reservar, cancelar y consultar su historial de reservas.
+Los usuarios pueden registrarse, consultar las sedes y sus canchas, ver la disponibilidad de horarios, reservar, cancelar, consultar su historial de reservas y recibir notificaciones push antes de cada reserva.
 
 ## Tecnologías
 
@@ -13,8 +13,9 @@ Los usuarios pueden registrarse, consultar las sedes y sus canchas, ver la dispo
 | API REST | Python con FastAPI |
 | Base de datos | PostgreSQL |
 | Autenticación | Firebase Authentication |
+| Notificaciones push | Firebase Cloud Messaging |
 | Documentación de la API | Swagger / OpenAPI |
-| Nube | Render (API y base de datos) |
+| Nube | Render (API y base de datos): https://clublucasberazategui.onrender.com/docs |
 
 ## Estructura del repositorio
 

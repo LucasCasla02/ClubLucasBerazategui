@@ -45,7 +45,7 @@ const errorSesionVencida = ErrorApi(
 // todos los pedidos a la api pasan por aca
 class Api {
   // render gratis tarda en despertar, por eso se espera bastante
-  static const _espera = Duration(seconds: 30);
+  static const _espera = Duration(seconds: 60);
 
   static Future<dynamic> get(String ruta) => _pedir('GET', ruta);
   static Future<dynamic> post(String ruta, Map<String, dynamic> datos) => _pedir('POST', ruta, datos);

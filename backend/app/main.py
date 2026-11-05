@@ -65,7 +65,7 @@ GRUPOS = [
 app = FastAPI(
     title="API ClubLucasBerazategui",
     description=DESCRIPCION,
-    version="0.5.0",
+    version="1.0.0",
     openapi_tags=GRUPOS,
     lifespan=ciclo_de_vida,
 )

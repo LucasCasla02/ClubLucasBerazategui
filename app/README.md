@@ -1,6 +1,6 @@
 # App ClubLucasBerazategui
 
-Aplicación móvil (Android) del club, hecha con **Flutter**. Se conecta a la API REST de la carpeta `backend` y usa **Firebase Authentication** para el inicio de sesión.
+Aplicación móvil (Android) del club, hecha con **Flutter**. Se conecta a la API REST de la carpeta `backend`, usa **Firebase Authentication** para el inicio de sesión y **Firebase Cloud Messaging** para las notificaciones push.
 
 | Inicio | Sedes | Reservar |
 |---|---|---|
@@ -18,6 +18,7 @@ Aplicación móvil (Android) del club, hecha con **Flutter**. Se conecta a la AP
 - **Reservar:** elegir cancha, día (los próximos 7), duración (1 o 2 horas) y un horario libre. Los ocupados aparecen tachados. Muestra el total antes de confirmar.
 - **Mis reservas:** próximas (se pueden cancelar) e historial completo, con su estado: activa, completada o cancelada.
 - **Perfil:** ver y editar los datos (el email no se puede cambiar), modo claro u oscuro, cambiar la contraseña, cerrar sesión y eliminar la cuenta (pide la contraseña).
+- **Notificaciones:** al entrar pide permiso y registra el celular. Llegan recordatorios 24 h y 1 h antes de cada reserva, aunque la app esté cerrada.
 
 ## Requisitos
 
@@ -56,23 +57,26 @@ flutterfire configure --project=clublucasberazategui --platforms=android
 
 ## 3. Ejecutar
 
-1. Prender el emulador (desde Android Studio, o con `flutter emulators --launch <nombre>`).
-2. Prender el backend.
-3. Desde la carpeta `app`:
+1. Prender el emulador (desde Android Studio, o con `flutter emulators --launch <nombre>`). Para las notificaciones tiene que ser una imagen con Google Play.
+2. Desde la carpeta `app`:
 
 ```
 flutter run
 ```
 
-Por defecto la app se conecta a la API en `http://10.0.2.2:8000/api/v1`. `10.0.2.2` es la dirección con la que el emulador de Android llega a la PC donde corre el backend.
+Por defecto la app se conecta a la API publicada en Render: `https://clublucasberazategui.onrender.com/api/v1`.
 
-Para usar la API publicada en Render:
+Para usar el backend corriendo en la PC (`uvicorn`):
 
 ```
-flutter run --dart-define=URL_API=https://clublucasberazategui.onrender.com/api/v1
+flutter run --dart-define=URL_API=http://10.0.2.2:8000/api/v1
 ```
 
-> **Render gratis se duerme** después de unos 15 minutos sin uso y el primer pedido tarda alrededor de un minuto. Si la app muestra "El servidor no responde", abrir https://clublucasberazategui.onrender.com/api/v1/salud en el navegador, esperar a que cargue y reintentar.
+`10.0.2.2` es la dirección con la que el emulador de Android llega a la PC.
+
+> **Render gratis se duerme** después de unos 15 minutos sin uso y el primer pedido tarda alrededor de un minuto (la app espera hasta 60 segundos). Si la app muestra "El servidor no responde", abrir https://clublucasberazategui.onrender.com/api/v1/salud en el navegador, esperar a que cargue y reintentar.
+
+> **Cuentas:** Firebase es uno solo, pero la base local y la de Render son distintas. Una cuenta creada contra el backend local no tiene perfil en Render (y al revés).
 
 > **Zona horaria:** el emulador tiene que estar en la hora de Argentina (Ajustes → Sistema → Fecha y hora → Buenos Aires), si no, los horarios disponibles no coinciden con los del servidor.
 
@@ -81,10 +85,10 @@ flutter run --dart-define=URL_API=https://clublucasberazategui.onrender.com/api/
 Para instalar la app en un celular Android real:
 
 ```
-flutter build apk --release --dart-define=URL_API=https://clublucasberazategui.onrender.com/api/v1
+flutter build apk --release
 ```
 
-El instalable queda en `build/app/outputs/flutter-apk/app-release.apk`. El celular necesita llegar a la API por internet, por eso se usa la URL de Render (la `10.0.2.2` solo existe dentro del emulador).
+El instalable queda en `build/app/outputs/flutter-apk/app-release.apk`. Usa la API de Render, que es la dirección por defecto.
 
 ## Estructura
 
@@ -101,6 +105,7 @@ lib/
 │   ├── api.dart       todos los pedidos pasan por acá: agrega el token y traduce los errores
 │   ├── auth.dart      login, registro, recuperar y cambiar contraseña
 │   ├── catalogo.dart  sedes, canchas y horarios
+│   ├── notificaciones.dart  permiso y token del celular para las notificaciones push
 │   ├── reservas.dart  crear, listar y cancelar reservas
 │   └── usuarios.dart  ver, editar y eliminar el perfil
 ├── pantallas/         una por pantalla de la app
@@ -115,7 +120,7 @@ lib/
 |---|---|
 | Sin internet | Modal "Error de conectividad" |
 | Servidor apagado o con error | Modal "Error del servidor" |
-| El servidor tarda más de 30 segundos | Modal "El servidor no responde" |
+| El servidor tarda más de 60 segundos | Modal "El servidor no responde" |
 | Login incorrecto, usuario ya registrado, campos vacíos | Cartel rojo arriba del formulario |
 | Horario ocupado por otro usuario al confirmar | Modal y se vuelven a cargar los horarios |
 | Sesión vencida | Cierra la sesión y vuelve al login |
