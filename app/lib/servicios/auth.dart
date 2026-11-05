@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import 'api.dart';
+import 'notificaciones.dart';
 
 // inicio, cierre de sesion y registro con firebase
 class Auth {
@@ -46,7 +47,11 @@ class Auth {
     }
   }
 
-  static Future<void> cerrarSesion() => _firebase.signOut();
+  static Future<void> cerrarSesion() async {
+    // primero se borra el token del celular, mientras la sesion sigue abierta
+    await Notificaciones.desactivar();
+    await _firebase.signOut();
+  }
 
   // manda el mail de firebase para crear una contraseña nueva
   static Future<void> recuperarContrasena(String email) async {

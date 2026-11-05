@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     # solo para el script de prueba obtener_token.py
     firebase_api_key: str = ""
 
+    # clave para los endpoints de administrador (probar notificaciones y recordatorios)
+    clave_admin: str = ""
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 

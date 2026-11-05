@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -7,16 +8,36 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import SessionLocal, get_db
 from app.firebase import iniciar_firebase
-from app.routers import deportes, espacios, reservas, sedes, usuarios
+from app.notificaciones import procesar_recordatorios
+from app.routers import deportes, espacios, notificaciones, reservas, sedes, usuarios
 from app.schemas import ErrorValidacion
+
+MINUTOS_ENTRE_REVISIONES = 5
+
+
+def _revisar_recordatorios():
+    with SessionLocal() as db:
+        procesar_recordatorios(db)
+
+
+# mientras la api esta prendida, cada 5 minutos manda los recordatorios que falten
+async def _revision_automatica():
+    while True:
+        try:
+            await asyncio.to_thread(_revisar_recordatorios)
+        except Exception as e:  # que un error no corte la revision para siempre
+            print(f"Error en los recordatorios: {e}")
+        await asyncio.sleep(MINUTOS_ENTRE_REVISIONES * 60)
 
 
 @asynccontextmanager
 async def ciclo_de_vida(app):
     iniciar_firebase()  # al arrancar la api
+    tarea = asyncio.create_task(_revision_automatica())
     yield
+    tarea.cancel()  # al apagar la api
 
 
 DESCRIPCION = """
@@ -37,13 +58,14 @@ GRUPOS = [
     {"name": "Espacios deportivos", "description": "Canchas de cada sede y su grilla de horarios libres."},
     {"name": "Usuarios", "description": "Perfil del usuario logueado. Requiere token."},
     {"name": "Reservas", "description": "Reservar, ver mis reservas y cancelar. Requiere token."},
+    {"name": "Notificaciones", "description": "Notificaciones push. Para el administrador: requiere la clave X-Clave-Admin."},
     {"name": "Salud", "description": "Estado de la API y de la base de datos."},
 ]
 
 app = FastAPI(
     title="API ClubLucasBerazategui",
     description=DESCRIPCION,
-    version="0.4.2",
+    version="0.5.0",
     openapi_tags=GRUPOS,
     lifespan=ciclo_de_vida,
 )
@@ -53,6 +75,7 @@ app.include_router(deportes.router)
 app.include_router(espacios.router)
 app.include_router(usuarios.router)
 app.include_router(reservas.router)
+app.include_router(notificaciones.router)
 
 
 # en la documentacion, cambia el formato de error 422 de fastapi por el nuestro

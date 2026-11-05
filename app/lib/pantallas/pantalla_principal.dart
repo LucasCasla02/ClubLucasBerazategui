@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../navegacion.dart';
+import '../servicios/notificaciones.dart';
 import '../tema.dart';
 import 'pantalla_inicio.dart';
 import 'pantalla_perfil.dart';
@@ -28,6 +29,8 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
     super.initState();
     // al iniciar sesion siempre arranca en inicio
     pestanaActual.value = 0;
+    // pide permiso de notificaciones y registra este celular en la api
+    Notificaciones.activar();
   }
 
   @override

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from firebase_admin import auth
-from sqlalchemy import select
+from pydantic import BaseModel, Field
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.auth import token_actual, usuario_actual
@@ -80,6 +81,34 @@ def editar_perfil(
     db.commit()
     db.refresh(usuario)
     return usuario
+
+
+class TokenFcm(BaseModel):
+    # null al cerrar sesion: ese celular deja de recibir avisos de esta cuenta
+    token: str | None = Field(default=None, max_length=512)
+
+
+@router.put(
+    "/me/token-fcm",
+    status_code=204,
+    summary="Guardar el token del celular para las notificaciones push",
+    responses={401: {"description": "Sin sesión"}},
+)
+def guardar_token_fcm(
+    datos: TokenFcm,
+    usuario: Usuario = Depends(usuario_actual),
+    db: Session = Depends(get_db),
+):
+    if datos.token:
+        # si otra cuenta usaba este celular, deja de recibir avisos en el
+        db.execute(
+            update(Usuario)
+            .where(Usuario.token_fcm == datos.token, Usuario.id != usuario.id)
+            .values(token_fcm=None)
+        )
+    usuario.token_fcm = datos.token
+    db.commit()
+    return Response(status_code=204)
 
 
 @router.delete(
